@@ -7,7 +7,10 @@
 
   <p>To Compile Program</p>
   <code>make app </code>
-
   <p>To Run Program</p>
   <code>make run</code>
+
+  <p>More Testcases can be added in the makefile</p>
+
+  
 
