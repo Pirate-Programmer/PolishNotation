@@ -2,24 +2,17 @@
 #include<unistd.h>
 #include<string.h>
 
-//char expression_honour_system[] = "()0123456789+-*/^~ ";
 
-char valid_expression_characters[] = "(){}[]abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRTSUVWXYZ0123456789+-*/~^ ";
+char valid_expression_characters[] = "()0123456789+-*/~^ ";
 
-//basically like a key,value pair
-//keeps track of precedece of operators
-typedef struct operator_precedence
-{
- char operator;
- int precedence;
-}operator_precedence;
 
-operator_precedence precedence[] = {{'~',0},{'-',1},{'+',1},{'*',2},{'/',2},{'^',3}};
 
-int infix_to_prefix(const char* const ptr);
-int infix_to_postfix(const char * const ptr);
+char** infix_to_prefix(const char* const ptr);
+char** infix_to_postfix(const char * const ptr);
 int get_precedence(char operator);
-int store(char* , int ,Stack* );
+void free_result_array(char** , int);
+void print_expression(char**);
+
 
 
 int main(int argc, char* argv[])
@@ -59,7 +52,6 @@ int main(int argc, char* argv[])
     }
 
     //Parse the Expression
-
     //check if the expression is sematically correct ie contains only the req characters
     if(strspn(expression, valid_expression_characters) < strlen(expression))
     {
@@ -69,8 +61,14 @@ int main(int argc, char* argv[])
 
     //iterate expression character by character and perform req operation ie pop, pop, print or store.
     
-   // infix_to_postfix(expression);
-    infix_to_prefix(expression);
+   char** postfix =  infix_to_postfix(expression);
+   char** prefix = infix_to_prefix(expression);
+
+   print_expression(postfix);
+   print_expression(prefix);
+
+   free_result_array(prefix,strlen(expression));
+   free_result_array(postfix,strlen(expression));
 }
 
 
@@ -79,19 +77,29 @@ int main(int argc, char* argv[])
 
 //function defns
 
-int infix_to_postfix(const char * const ptr)
+char** infix_to_postfix(const char * const ptr)
 {
-    int len = 0;
+    int len = 0,count = 0,num = 0;
+    bool number_checker = false;
 
+    char **ans = (char**) calloc(strlen(ptr) + 1,sizeof(char*));
     Stack* postfix = intialize_stack(strlen(ptr));
-    if(postfix == NULL)
+    if(ans == NULL || postfix == NULL)
     {
-        return 3;
+        return NULL;
     }
 
-    printf("Expression: ");
+    for(int i = 0; i < strlen(ptr); i++)
+    {
+        char* temp = (char* )malloc(sizeof(char)*5);
+        if(temp == NULL)
+        {
+            return NULL;
+        }
+        ans[i] = temp;
+    }
 
-     for(char chr = ptr[len]; chr != '\0';chr = ptr[++len])
+    for(char chr = ptr[len]; chr != '\0';chr = ptr[++len])
     {
         if(isspace(chr) != 0) //skip whitespace
         {
@@ -99,72 +107,94 @@ int infix_to_postfix(const char * const ptr)
         }
         else if(isalnum(chr) != 0) //print operand in stdout
         {
-            printf("%c",chr);
+           number_checker = true;
+           num *= 10;
+           num = num + atoi(&chr);
         }
         else  // chr is a operator
         {
+            if(number_checker)
+            {
+                sprintf(ans[count++],"%i",num);
+                num = 0;
+                number_checker = false;
+            }
+
             if(chr == '(')
             {
                 push(postfix,chr);
             }
             else if(chr == ')')  //pop till first open parenthesis is found
             {
+
                 //***NOTE: This Expects a opening bracket is in the stack
                 //POINT OF FAILURE WILL BREAK IF BRACKET NOT PRESENT NEED TO ADJUST FOR THAT
                 //also expression not valid if open bracket present but no closing bracket viceversa
 
                 for(char object = pop(postfix); object != '(' && !isEmpty(postfix); object = pop(postfix))
                 {
-                    printf(" "); //whitespace to seperate the operator and operands in stdout
-                    printf("%c ",object);
+                    sprintf(ans[count++],"%c",object);
                 }
             }
             else  //push coperator
             {
-                int flag = 0;
-                printf(" "); //whitespace to seperate the operands in stdout
-
                 //get_precedence == -1 ie '('  push in stack
                 //get_precedence(chr) > get_predence(operator) ex: operator: '-' & chr: '*' ; push chr
+                //else pop stack
                 //if stack is empty peek will return  char_max and get_precedence will return -1
-                while(flag != 1)
+
+                while(get_precedence(chr) <= get_precedence(peek(postfix)))
                 {
-                    flag = (get_precedence(chr) > get_precedence(peek(postfix)))?push(postfix,chr) : printf("%c ",(pop(postfix)));
+                    sprintf(ans[count++],"%c",pop(postfix));
                 }
+                push(postfix,chr);
             }
         }
     }
+    if(number_checker)
+    {
+        sprintf(ans[count++],"%i",num);
+        num = 0;
+    }
+  
+    while(!isEmpty(postfix))
+    {
+        sprintf(ans[count++],"%c",pop(postfix));
+    }
+    ans[count] = '\0';
 
-        while(!isEmpty(postfix)){
-            printf("%c ",pop(postfix));
-        }
-        printf("\n"); //for looks when make file is executing multiple cases
-    
     //free stack memory
     freeStack(postfix);
+    return ans;
 }
 
 
 
-int infix_to_prefix(const char * const ptr)
+char** infix_to_prefix(const char * const ptr)
 {
-    int len = strlen(ptr) - 1;
-    
-    int digit_size = 2;
+    int len = strlen(ptr) - 1,count = 0,num = 0;
+    bool number_checker = false;
+
     Stack* prefix = intialize_stack(strlen(ptr)); //prefix stack used to convert infix to prefix
-    char* output = (char* )calloc(sizeof(char),strlen(ptr)*2); //contains the prefix output
-    
+    char** output = (char**)calloc(strlen(ptr) + 2,sizeof(char*));
     if(prefix == NULL || output == NULL)
     {
-        return 4;
+        return NULL;
     }
 
-    int output_pointer = 0;
+    //setting up array of pointers
+    for(int i = 0; i < strlen(ptr); i++)
+    {
+        char* temp = (char* )malloc(sizeof(char)*5);
+        if(temp == NULL)
+        {
+            return NULL;
+        }
+        output[i] = temp;
+    }
     
 
-    printf("Expression: ");
-
-     for(char chr = ptr[len]; chr != '\0';chr = ptr[--len])
+     for(char chr = ptr[len]; len >= 0 ;chr = ptr[--len])
     {
         if(isspace(chr) != 0) //skip whitespace
         {
@@ -172,10 +202,26 @@ int infix_to_prefix(const char * const ptr)
         }
         else if(isalnum(chr) != 0)
         {
-            output[output_pointer++] = chr;
+           number_checker = true;
+           num *= 10;
+           num = num + atoi(&chr);
         }
         else  // chr is a operator
         {
+            if(number_checker)
+            {
+                int temp = num;
+                num = 0;
+                while(temp)
+                {
+                    num = num*10 + temp%10;
+                    temp /= 10;
+                }
+                sprintf(output[count++],"%i",num);
+                num = 0;
+                number_checker = false;
+            }
+
             if(chr == ')')
             {
                 push(prefix,chr);
@@ -188,53 +234,99 @@ int infix_to_prefix(const char * const ptr)
 
                 for(char object = pop(prefix); object != ')' && !isEmpty(prefix); object = pop(prefix))
                 {
-                    output[output_pointer++] = object;
+                    sprintf(output[count++],"%c",object);
                 }
             }
             else  //push coperator
             {
-                int flag = 0;
 
-                //get_precedence == -1 ie '('  push in stack
-                //get_precedence(chr) > get_predence(operator) ex: operator: '-' & chr: '*' ; push chr
+                //get_precedence == -1 ie ')'  push in stack
+                //get_precedence(chr) < get_predence(operator) ex: operator: '-' & chr: '*' ; push chr
                 //if stack is empty peek will return  char_max and get_precedence will return -1
-                while(flag != 1)
+                while(get_precedence(chr) < get_precedence(peek(prefix)))
                 {
-                    flag = (get_precedence(chr) >= get_precedence(peek(prefix)))?push(prefix,chr) : store(output,output_pointer++,prefix);
+                    sprintf(output[count++],"%c",pop(prefix));
                 }
+                push(prefix,chr);
             }
         }
     }
-
-        while(!isEmpty(prefix)){
-            output[output_pointer++] = pop(prefix);
-        }
- 
-
-        for(int i = output_pointer - 1; i >= 0; i--)
+    if(number_checker)
+    {
+        int temp = num;
+        num = 0;
+        while(temp)
         {
-            printf("%c ",output[i]);
+            num = num*10 + temp%10;
+            temp /= 10;
         }
-               printf("\n\n"); //for looks when makefile is executing multiple cases
+        sprintf(output[count++],"%i",num);
+        num = 0;
+    }
+
+    while(!isEmpty(prefix))
+    {
+        sprintf(output[count++],"%c",pop(prefix));
+    }
+    output[count] = '\0';
+    //reverse the array for prefix
+    for(int i = 0; i < count/2; i++)
+    {
+        char* temp = output[i];
+        output[i] = output[count - i - 1];
+        output[count - i - 1] = temp;
+    }
+
     //free stack memory
     freeStack(prefix);
+    return output;
 }
 
 
 int get_precedence(char operator)
 {
-    for(int i = 0,len = sizeof(precedence)/sizeof(precedence[0]); i < len; i++)
+    switch (operator)
     {
-        if(operator == (precedence+i)->operator)
-        {
-            return (precedence+i)->precedence;
-        }
+        case '~':
+            return 0;
+
+        case '-':
+            return 1; 
+
+         case '+':
+            return 1; 
+
+         case '*':
+            return 2; 
+
+         case '/':
+            return 2; 
+
+         case '^':
+            return 3;   
+    
+         default:  //for brackets
+            return -1;
     }
-    return -1; //for opening bracket
+    return -1;
 }
 
-int store(char* output,int position, Stack* notation)
+
+void free_result_array(char** ans,int len)
 {
-    *(output + position) = pop(notation);
-    return 0;
+    for(int i = 0; i < len; i++)
+    {
+        free(ans[i]);
+    }
+    free(ans);
+}
+
+void print_expression(char** expression)
+{
+    int i = 0;
+    while(expression[i] != '\0')
+    {
+        printf("%s ",expression[i++]);
+    }
+    printf("\n");
 }
