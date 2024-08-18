@@ -5,3 +5,13 @@
    <li>Evaluates Polish/Prefix Expression</li>
   </ul>
 
+  <p>To Compile Program</p>
+  <code>
+    make app
+  </code>
+
+  <p>To Run Program</p>
+  <code>
+    make run
+  </code>
+
