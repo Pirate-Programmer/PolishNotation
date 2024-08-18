@@ -1,6 +1,7 @@
-# PolishNotation
+<h1>PolishNotation</h1> 
 
-</h4>Converting between Infix/Postfix/Prefix</h4>
- <p>Using Stacks</p>
+  <ul>
+   <li>Converts Expression to Postfix and Prefix</li>
+   <li>Evaluates Polish/Prefix Expression</li>
+  </ul>
 
- <p> Converts Expression to Postfix and Prefix</p>
