@@ -5,10 +5,11 @@
    <li>Evaluates Polish/Prefix Expression</li>
   </ul>
 
-  <p>To Compile Program</p>
-  <code>make app </code>
-  <p>To Run Program</p>
-  <code>make run</code>
+  <p>To Compile Program: <code>make app </code></p>
+  
+  <p>To Run Program: <code>make run</code></p>
+  <br>
+  
 
   <p>More Testcases can be added in the makefile</p>
 
