@@ -48,7 +48,7 @@ bool resize_stack(Stack* stack)
 //to push element
 //inc top of stack
 //add the object
-bool push(Stack* stack, int object)
+bool push(Stack* stack, Objects object)
 {
     /*
     example:
@@ -86,7 +86,7 @@ Objects pop(Stack* stack)
 {
     if(isEmpty(stack))
     {
-        return CHAR_MAX;
+        return (Objects)CHAR_MAX;
     }
     Objects value = *(stack->objects + stack->top);
     stack->top--;
@@ -103,7 +103,7 @@ void freeStack(Stack* stack)
 Objects peek(Stack* stack)
 {
     if(isEmpty(stack)){
-        return CHAR_MAX;
+        return (Objects)CHAR_MAX;
     }
     return *(stack->objects+stack->top); 
 }

@@ -3,6 +3,7 @@
 #include<string.h>
 
 
+
 char valid_expression_characters[] = "()0123456789+-*/~^ ";
 
 
@@ -12,7 +13,7 @@ char** infix_to_postfix(const char * const ptr);
 int get_precedence(char operator);
 void free_result_array(char** , int);
 void print_expression(char**);
-
+void eval(char**);
 int expression_length;
 
 int main(int argc, char* argv[])
@@ -65,10 +66,10 @@ int main(int argc, char* argv[])
    char** prefix = infix_to_prefix(expression);
 
 
-   print_expression(postfix);
+     print_expression(postfix);
    print_expression(prefix);
-
-   free_result_array(prefix,strlen(expression));
+  //eval(postfix);
+  // free_result_array(prefix,strlen(expression));
    free_result_array(postfix,strlen(expression));
 }
 
@@ -97,7 +98,8 @@ char** infix_to_postfix(const char * const ptr)
         {
             return NULL;
         }
-        ans[i] = temp;
+        *temp = '\0';
+        ans[i] = temp;  //*(ans + i)
     }
 
     for(char chr = ptr[len]; chr != '\0';chr = ptr[++len])
@@ -119,6 +121,7 @@ char** infix_to_postfix(const char * const ptr)
                 sprintf(ans[count++],"%i",num);
                 num = 0;
                 number_checker = false;
+
             }
 
             if(chr == '(')
@@ -151,6 +154,7 @@ char** infix_to_postfix(const char * const ptr)
                 push(postfix,chr);
             }
         }
+
     }
     if(number_checker)
     {
@@ -162,7 +166,7 @@ char** infix_to_postfix(const char * const ptr)
     {
         sprintf(ans[count++],"%c",pop(postfix));
     }
-    ans[count] = '\0';
+   // ans[count] = '\0';
 
     //free stack memory
     freeStack(postfix);
@@ -191,6 +195,7 @@ char** infix_to_prefix(const char * const ptr)
         {
             return NULL;
         }
+        *temp = '\0';
         output[i] = temp;
     }
     
@@ -269,7 +274,8 @@ char** infix_to_prefix(const char * const ptr)
     {
         sprintf(output[count++],"%c",pop(prefix));
     }
-    output[count] = '\0';  //ie *(output + i)
+   // output[count] = '\0';  //ie *(output + i)
+   
     //reverse the array for prefix
     for(int i = 0; i < count/2; i++)
     {
@@ -324,11 +330,23 @@ void free_result_array(char** ans,int len)
 void print_expression(char** expression)
 {
     int i = 0;
-    while(expression[i] != '\0')
+    while(*expression[i] != '\0')
     {
         printf("%s ",expression[i++]);
     }
     printf("\n");
+}
+
+//term is a char pointer
+//contains: operator/ operand
+void eval(char** expression)
+{
+    int idx = 0,j = 0;
+    for(char * term = *expression; *term != '\0';j =0,++idx, term = *(expression + idx))
+    {
+        printf("yo ");
+
+    }
 }
 
 
