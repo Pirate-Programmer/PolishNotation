@@ -12,7 +12,6 @@ char** infix_to_postfix(const char * const ptr);
 int get_precedence(char operator);
 void free_result_array(char** , int);
 void print_expression(char**);
-void eval(char**);
 
 int expression_length;
 
@@ -66,9 +65,9 @@ int main(int argc, char* argv[])
    char** prefix = infix_to_prefix(expression);
 
 
-   //print_expression(postfix);
-   //print_expression(prefix);
-   eval(postfix);
+   print_expression(postfix);
+   print_expression(prefix);
+
    free_result_array(prefix,strlen(expression));
    free_result_array(postfix,strlen(expression));
 }
@@ -313,18 +312,6 @@ int get_precedence(char operator)
     return -1;
 }
 
-void eval(char** expression)
-{
-    Stack* eval = intialize_stack(10);
-    int idx = 0;
-    for(char* term = *(expression + idx); *term != '\0' ; ++idx,term = *(expression + idx))
-    {
-    printf("%s  ",term);
-
-    }
-}
-
-
 void free_result_array(char** ans,int len)
 {
     for(int i = 0; i < len; i++)
@@ -344,25 +331,4 @@ void print_expression(char** expression)
     printf("\n");
 }
 
-int count_expression_terms(char* infix_expression)
-{
-    int len = 0;
-    int idx = 0;
- for(char chr = infix_expression[idx]; chr != '\0'; chr = infix_expression[++idx])
- {
-    if(isOperator(chr))
-    {
-        len++;
-    }
- }
- return len;
-}
 
-bool isOperator(char op)
-{
-  if(op == '~' || op == '-' || op == '+' || op == '*' || op == '/' || op == '^')
-  {
-    return true;
-  }
-  return false;
-}
