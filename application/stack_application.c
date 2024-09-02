@@ -13,7 +13,6 @@ char** infix_to_postfix(const char * const ptr);
 int get_precedence(char operator);
 void free_result_array(char** , int);
 void print_expression(char**);
-void eval(char**);
 int expression_length;
 
 int main(int argc, char* argv[])
@@ -68,8 +67,7 @@ int main(int argc, char* argv[])
 
      print_expression(postfix);
    print_expression(prefix);
-  //eval(postfix);
-  // free_result_array(prefix,strlen(expression));
+    free_result_array(prefix,strlen(expression));
    free_result_array(postfix,strlen(expression));
 }
 
@@ -337,16 +335,5 @@ void print_expression(char** expression)
     printf("\n");
 }
 
-//term is a char pointer
-//contains: operator/ operand
-void eval(char** expression)
-{
-    int idx = 0,j = 0;
-    for(char * term = *expression; *term != '\0';j =0,++idx, term = *(expression + idx))
-    {
-        printf("yo ");
-
-    }
-}
 
 
