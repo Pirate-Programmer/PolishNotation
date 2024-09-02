@@ -7,7 +7,7 @@
 
   <p>To Compile Program: <code>make app </code></p>
   
-  <p>To Run Program: <code>make run</code>(Note this is for converting Expression part of applicatoin folder)</p>
+  <p>To Run Program: <code>make run</code>(Note this is for converting Expression , part of applicatoin folder)</p>
   <br>
 
   <p>More Testcases can be added in the makefile</p>
